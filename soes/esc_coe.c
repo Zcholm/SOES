@@ -814,7 +814,7 @@ static void SDO_download (void)
                mbxdata = (&(coesdo->size)) + 1;
             }
             actsize = BITS2BYTES((objd + nsub)->bitlength);
-            if (actsize != size)
+            if (size < actsize)
             {
                /* entries with data types VISIBLE_STRING, OCTET_STRING,
                 * UNICODE_STRING, ARRAY_OF_INT, ARRAY_OF_SINT,
@@ -836,6 +836,11 @@ static void SDO_download (void)
                   set_state_idle (0, index, subindex, ABORT_TYPEMISMATCH);
                   return;
                }
+            }
+            else if (size > actsize)
+            {
+               set_state_idle (0, index, subindex, ABORT_EXCEEDS_MBOX_SIZE);
+               return;
             }
             abort = ESC_download_pre_objecthandler (
                   index,
